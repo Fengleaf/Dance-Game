@@ -4,5 +4,5 @@ using UnityEngine;
 
 public static class LevelData
 {
-    public static string levelName = "Dancing 1";
+    public static string levelName = "Dancing1";
 }
