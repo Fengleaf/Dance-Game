@@ -392,8 +392,8 @@ public class VNectModel : MonoBehaviour
             partLenErrorSum += Mathf.Abs(GTRatio[i] - partRatio[i]);
         }
         float errorAverage = GetRecentAverageErrorRatio(partLenErrorSum);
-        IsError = partLenErrorSum > 9f;
-        IsErrorAverage = errorAverage > 9f;
+        IsError = partLenErrorSum > 8f;
+        IsErrorAverage = errorAverage > 8f;
         if (IsError)
             Debug.Log("Part len ratio error:" + errorAverage);
     }
@@ -448,7 +448,7 @@ public class VNectModel : MonoBehaviour
             res += errorRatioList[i];
         }
         res = (res / errorRatioList.Count);
-        while (errorRatioList.Count >= 50)
+        while (errorRatioList.Count >= 30)
         {
             errorRatioList.RemoveAt(0);
         }
