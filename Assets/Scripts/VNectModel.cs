@@ -373,6 +373,11 @@ public class VNectModel : MonoBehaviour
             sk.Line.SetPosition(0, new Vector3(s.Pos3D.x * SkeletonScale + SkeletonX, s.Pos3D.y * SkeletonScale + SkeletonY, s.Pos3D.z * SkeletonScale + SkeletonZ));
             sk.Line.SetPosition(1, new Vector3(e.Pos3D.x * SkeletonScale + SkeletonX, e.Pos3D.y * SkeletonScale + SkeletonY, e.Pos3D.z * SkeletonScale + SkeletonZ));
         }
+
+        List<float> partRatio = GetPartLenRatio(Skeletons);
+        Debug.Log("Part ratio:");
+        for (int i = 0; i < partRatio.Count; i++)
+            Debug.Log(partRatio[i]);
     }
 
     Vector3 TriangleNormal(Vector3 a, Vector3 b, Vector3 c)
@@ -415,4 +420,84 @@ public class VNectModel : MonoBehaviour
 
         Skeletons.Add(sk);
     }
+
+    private enum SkelotonName
+    {
+        LeftArmUp,
+        LeftArmDown,
+        LeftFinger1,
+        LeftFinger2,
+        RightArmUp,
+        RightArmDown,
+        RightFinger1,
+        RightFinger2,
+        RightEye,
+        LeftEye,
+        LeftThigh,
+        LeftCalf,
+        LeftSole,
+        RightThigh,
+        RightCalf,
+        RightSole,
+        Spine,
+        Neck,
+        LeftShouder,
+        RightShouder,
+        LeftUpOut,
+        RightUpOut,
+        LeftUpIn,
+        RightUpIn,
+        LeftDownIn,
+        RightDownIn,
+        Ass
+    }
+
+    private List<float> GetPartLenRatio(List<Skeleton> skeletons)
+    {
+        List<float> ratio = new List<float>();
+        for (int i = 0; i < skeletons.Count; i++)
+        {
+            ratio.Add(
+                Vector3.Distance(skeletons[i].start.Pos3D, skeletons[i].end.Pos3D) / 
+                Vector3.Distance(skeletons[(int)SkelotonName.Spine].start.Pos3D, skeletons[(int)SkelotonName.Spine].end.Pos3D)
+                );
+        }
+        return ratio;
+    }
+
+    private void isPoseReasonable(List<Skeleton> skeletons)
+    {
+
+    }
+
+    /*
+    オも羥
+    オも羥
+    オも1
+    オも2
+    も羥
+    も羥
+    も1
+    も2
+    泊
+    オ泊
+    オ籐
+    オ籐
+    オ竲磝
+    籐
+    籐
+    竲磝
+    凑
+    蹭
+    繷
+    オ籋
+    籋
+    オō场
+    ō场
+    オōず场
+    ōず场
+    オōず场
+    ōず场
+    Ь
+     */
 }

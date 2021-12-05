@@ -280,6 +280,7 @@ public class VNectBarracudaRunner : MonoBehaviour
     /// </summary>
     private void PredictPose()
     {
+        int scoreLessCount = 0;
         for (var j = 0; j < JointNum; j++)
         {
             var maxXIndex = 0;
@@ -306,11 +307,17 @@ public class VNectBarracudaRunner : MonoBehaviour
                     }
                 }
             }
-           
+            if (jointPoints[j].score3D < 0.4f)
+            {
+                scoreLessCount += 1;
+            }
+            // Debug.Log("Score:" + jointPoints[j].score3D);
             jointPoints[j].Now3D.x = (offset3D[maxYIndex * CubeOffsetSquared + maxXIndex * CubeOffsetLinear + j * HeatMapCol + maxZIndex] + 0.5f + (float)maxXIndex) * ImageScale - InputImageSizeHalf;
             jointPoints[j].Now3D.y = InputImageSizeHalf - (offset3D[maxYIndex * CubeOffsetSquared + maxXIndex * CubeOffsetLinear + (j + JointNum) * HeatMapCol + maxZIndex] + 0.5f + (float)maxYIndex) * ImageScale;
             jointPoints[j].Now3D.z = (offset3D[maxYIndex * CubeOffsetSquared + maxXIndex * CubeOffsetLinear + (j + JointNum_Squared) * HeatMapCol + maxZIndex] + 0.5f + (float)(maxZIndex - 14)) * ImageScale;
         }
+
+        //Debug.Log("Score less pnts:" + scoreLessCount);
 
         // Calculate hip location
         var lc = (jointPoints[PositionIndex.rThighBend.Int()].Now3D + jointPoints[PositionIndex.lThighBend.Int()].Now3D) / 2f;
