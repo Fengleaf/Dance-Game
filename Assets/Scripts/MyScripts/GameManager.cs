@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.IO;
+using SFB;
 
 public class GameManager : MonoBehaviour
 {
@@ -76,5 +77,38 @@ public class GameManager : MonoBehaviour
         nowSelectIndex = i;
         nowLevelText.text = nowSelectButton.transform.GetComponentInChildren<Text>().text;
         LevelData.levelName = nowLevelText.text;
+    }
+
+    public void ImportBVH()
+    {
+        string[] ss = StandaloneFileBrowser.OpenFilePanel("讀取", Application.dataPath, "bvh", true);
+        foreach (string s in ss)
+        {
+            if (!string.IsNullOrEmpty(s))
+            {
+                string content = "";
+                using (StreamReader reader = new StreamReader(s))
+                    content = reader.ReadToEnd();
+                string[] split = s.Split('\\');
+                string fileName = split[split.Length - 1];
+                // 檢查匯入的檔案合不合法
+                try
+                {
+                    BVHParser parser = new BVHParser(content);
+                }
+                catch (System.Exception)
+                {
+                    continue;
+                }
+                using (StreamWriter writer = new StreamWriter(Path.Combine(Application.streamingAssetsPath, "BVHs" + "\\" + fileName)))
+                    writer.WriteLine(content);
+                GameObject levelButton = Instantiate(levelButtonTemplate, levelButtonContent);
+                levelButton.transform.GetChild(0).GetComponent<Text>().text = fileName.Split('.')[0];
+                levelButtons.Add(levelButton);
+                levelButton.SetActive(true);
+                int buttonIndex = levelButtons.Count - 1;
+                levelButton.GetComponent<Button>().onClick.AddListener(() => SelectLevel(buttonIndex));
+            }
+        }
     }
 }

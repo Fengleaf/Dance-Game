@@ -209,7 +209,7 @@ public class VNectBarracudaRunner : MonoBehaviour
         // Init VideoCapture
         videoCapture.Init(InputImageSize, InputImageSize);
         Lock = false;
-        Msg.gameObject.SetActive(false);
+        //Msg.gameObject.SetActive(false);
         LevelManager.Instance.OnModelComplete();
     }
 

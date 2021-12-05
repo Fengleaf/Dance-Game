@@ -4,12 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System;
+using SFB;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance;
 
     public Text scoreText;
+    public Text gameOverText;
 
     public BVHAnimationLoader bvhAnimationLoader;
 
@@ -20,6 +23,15 @@ public class LevelManager : MonoBehaviour
 
     private float totalScore = 0;
 
+    private VNectModel playerModel;
+    private BVHRecorder recorder;
+
+    public Transform uiCanvas;
+    public GameObject warningObject;
+    public Text warningText;
+    public GameObject boundingBox;    
+    public Countdown countdownPrefab;
+
     private void Awake()
     {
         Instance = this;
@@ -28,15 +40,51 @@ public class LevelManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playerModel = player.GetComponent<VNectModel>();
+        recorder = player.GetComponent<BVHRecorder>();
         bvhAnimationLoader.filename = Path.Combine(Application.streamingAssetsPath, "BVHs") + "/" + LevelData.levelName + ".bvh";
         bvhAnimationLoader.parseFile();
         bvhAnimationLoader.loadAnimation();
+        warningObject.SetActive(true);
+        warningText.text = "Wait model Load...";
     }
 
     public void OnModelComplete()
     {
+        warningObject.SetActive(false);
         totalScore = 0;
         StartCoroutine(GamePlayCoroutine());
+        StartCoroutine(RecordActionCoroutine());
+    }
+
+    public void ExportBVH()
+    {
+        string s = StandaloneFileBrowser.SaveFilePanel("儲存", Application.dataPath, "dance", "bvh");
+        if (!string.IsNullOrEmpty(s))
+        {
+            recorder.overwrite = File.Exists(s);
+            List<string> path = new List<string>(s.Split('\\'));
+            string fileName = path[path.Count - 1];
+            path.RemoveAt(path.Count - 1);
+            string directory = string.Join("\\", path); 
+            recorder.directory = directory;
+            recorder.filename = fileName;
+            recorder.saveBVH();
+        }
+    }
+
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    private IEnumerator RecordActionCoroutine()
+    {
+        while (true)
+        {
+            recorder.capturing = !playerModel.IsError;
+            yield return null;
+        }
     }
 
     private IEnumerator GamePlayCoroutine()
@@ -47,7 +95,13 @@ public class LevelManager : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(1f);
-            Debug.Log("***暫停，等待玩家動作***");
+            if (!bvhAnimationLoader.anim.isPlaying)
+            {
+                // 遊戲結束
+                warningObject.SetActive(true);
+                warningText.text = "~~~Game Over~~~ Congratuation!!!!";
+                break;
+            }
             float preSpeed = 0;
             foreach (AnimationState state in bvhAnimationLoader.anim)
             {
@@ -56,11 +110,38 @@ public class LevelManager : MonoBehaviour
             }
             while (true)
             {
-                Debug.Log("***等待中***");
+                if (playerModel.IsErrorAverage)
+                {
+                    warningObject.SetActive(true);
+                    warningText.text = "Please step in the bounding box, thank you!";
+                    boundingBox.SetActive(true);
+                    yield return new WaitUntil(() => !playerModel.IsErrorAverage);
+                    warningObject.SetActive(false);
+                    boundingBox.SetActive(false);
+                    Countdown countdown = Instantiate(countdownPrefab, uiCanvas);
+                    bool playerDisapear = false;
+                    yield return null;
+                    while (!countdown.IsEnd())
+                    {
+                        if (playerModel.IsErrorAverage)
+                        {
+                            warningObject.SetActive(true);
+                            warningText.text = "Please step in the bounding box, thank you!";
+                            boundingBox.SetActive(true);
+                            playerDisapear = true;
+                            countdown.countdownState = Countdown.state.STOP;
+                            break;
+                        }
+                        yield return null;
+                    }
+                    if (playerDisapear)
+                        continue;
+                    else
+                        countdown.countdownState = Countdown.state.STOP;
+                }
                 float score = GetTotalScore();
                 if (score >= 1)
                 {
-                    Debug.Log("***獲得分數! NPC繼續執行***");
                     totalScore += score;
                     scoreText.text = totalScore.ToString();
                     foreach (AnimationState state in bvhAnimationLoader.anim)
@@ -69,7 +150,6 @@ public class LevelManager : MonoBehaviour
                 }
                 yield return null;
             }
-
         }
     }
 

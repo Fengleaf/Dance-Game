@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -32,6 +32,16 @@ public class VideoCapture : MonoBehaviour
         this.bgHeight = bgHeight;
         if (UseWebCam) CameraPlayStart();
         else VideoPlayStart();
+    }
+
+    public void Close()
+    {
+        webCamTexture.Stop();
+    }
+
+    private void OnDestroy()
+    {
+        Close();
     }
 
     /// <summary>

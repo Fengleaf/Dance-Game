@@ -125,6 +125,9 @@ public class VNectModel : MonoBehaviour
     // Pose correctness
     public List<float> errorRatioList = new List<float>();
 
+    public bool IsError { get; private set; }
+    public bool IsErrorAverage { get; private set; }
+
     private void Start()
     {
         errorRatioList.Clear();
@@ -389,7 +392,9 @@ public class VNectModel : MonoBehaviour
             partLenErrorSum += Mathf.Abs(GTRatio[i] - partRatio[i]);
         }
         float errorAverage = GetRecentAverageErrorRatio(partLenErrorSum);
-        if (errorAverage > 9f)
+        IsError = partLenErrorSum > 9f;
+        IsErrorAverage = errorAverage > 9f;
+        if (IsError)
             Debug.Log("Part len ratio error:" + errorAverage);
     }
 
@@ -532,33 +537,33 @@ public class VNectModel : MonoBehaviour
     }
 
     /*
-    ¥ª¤âÁu¤W
-    ¥ª¤âÁu¤U
-    ¥ª¤â«ü1
-    ¥ª¤â«ü2
-    ¥k¤âÁu¤W
-    ¥k¤âÁu¤U
-    ¥k¤â«ü1
-    ¥k¤â«ü2
-    ¥k²´
-    ¥ª²´
-    ¥ª¤j»L
-    ¥ª¤p»L
-    ¥ª¸}´x
-    ¥k¤j»L
-    ¥k¤p»L
-    ¥k¸}´x
-    ¯á´Õ
-    ²ä¤l
-    ÀY
-    ¥ªªÓ»H
-    ¥kªÓ»H
-    ¥ª¥b¨­¥~³¡
-    ¥k¥b¨­¥~³¡
-    ¥ª¥b¨­¤º³¡
-    ¥k¥b¨­¤º³¡
-    ¥ª¤U¥b¨­¤º³¡
-    ¥k¤U¥b¨­¤º³¡
-    §¾ªÑ
+    å·¦æ‰‹è‡‚ä¸Š
+    å·¦æ‰‹è‡‚ä¸‹
+    å·¦æ‰‹æŒ‡1
+    å·¦æ‰‹æŒ‡2
+    å³æ‰‹è‡‚ä¸Š
+    å³æ‰‹è‡‚ä¸‹
+    å³æ‰‹æŒ‡1
+    å³æ‰‹æŒ‡2
+    å³çœ¼
+    å·¦çœ¼
+    å·¦å¤§è…¿
+    å·¦å°è…¿
+    å·¦è…³æŒ
+    å³å¤§è…¿
+    å³å°è…¿
+    å³è…³æŒ
+    è„Šæ¤
+    è„–å­
+    é ­
+    å·¦è‚©è†€
+    å³è‚©è†€
+    å·¦åŠèº«å¤–éƒ¨
+    å³åŠèº«å¤–éƒ¨
+    å·¦åŠèº«å…§éƒ¨
+    å³åŠèº«å…§éƒ¨
+    å·¦ä¸‹åŠèº«å…§éƒ¨
+    å³ä¸‹åŠèº«å…§éƒ¨
+    å±è‚¡
      */
 }
