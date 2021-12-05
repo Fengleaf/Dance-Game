@@ -122,6 +122,14 @@ public class VNectModel : MonoBehaviour
     private float prevTall = 224 * 0.75f;
     public float ZScale = 0.8f;
 
+    // Pose correctness
+    public List<float> errorRatioList = new List<float>();
+
+    private void Start()
+    {
+        errorRatioList.Clear();
+    }
+
     private void Update()
     {
         if (jointPoints != null)
@@ -375,9 +383,14 @@ public class VNectModel : MonoBehaviour
         }
 
         List<float> partRatio = GetPartLenRatio(Skeletons);
-        Debug.Log("Part ratio:");
+        float partLenErrorSum = 0;
         for (int i = 0; i < partRatio.Count; i++)
-            Debug.Log(partRatio[i]);
+        {
+            partLenErrorSum += Mathf.Abs(GTRatio[i] - partRatio[i]);
+        }
+        float errorAverage = GetRecentAverageErrorRatio(partLenErrorSum);
+        if (errorAverage > 9f)
+            Debug.Log("Part len ratio error:" + errorAverage);
     }
 
     Vector3 TriangleNormal(Vector3 a, Vector3 b, Vector3 c)
@@ -421,6 +434,22 @@ public class VNectModel : MonoBehaviour
         Skeletons.Add(sk);
     }
 
+    private float GetRecentAverageErrorRatio(float nowErrorRatio)
+    {
+        float res = 0;
+        errorRatioList.Add(nowErrorRatio);
+        for (int i = 0; i < errorRatioList.Count; i++)
+        {
+            res += errorRatioList[i];
+        }
+        res = (res / errorRatioList.Count);
+        while (errorRatioList.Count >= 50)
+        {
+            errorRatioList.RemoveAt(0);
+        }
+        return res;
+    }
+
     private enum SkelotonName
     {
         LeftArmUp,
@@ -451,6 +480,38 @@ public class VNectModel : MonoBehaviour
         RightDownIn,
         Ass
     }
+
+    private float[] GTRatio = new float[]
+    {
+        0.5213584f,
+        0.5984739f,
+        0.1547947f,
+        0.1819057f,
+        0.4921227f,
+        0.5900172f,
+        0.0932881f,
+        0.1644025f,
+        0.3072207f,
+        0.2966480f,
+        1.0610190f,
+        0.9243902f,
+        0.3272715f,
+        1.0331200f,
+        0.9475710f,
+        0.2263722f,
+        1.0000000f,
+        0.4912581f,
+        0.2596645f,
+        0.3640012f,
+        0.3640012f,
+        1.3555050f,
+        1.3870410f,
+        1.0617030f,
+        1.0666680f,
+        0.4008712f,
+        0.4272266f,
+        0.4052456f
+    };
 
     private List<float> GetPartLenRatio(List<Skeleton> skeletons)
     {
