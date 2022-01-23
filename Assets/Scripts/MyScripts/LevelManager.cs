@@ -165,15 +165,37 @@ public class LevelManager : MonoBehaviour
             return 1;
 
         float total = 0;
-        bool ok = false;
-        int i;
-        for (i = 0; i < player.boneFrames.Count; i++)
+        //bool ok = false;
+        int index = 0;
+        float min = Mathf.Infinity;
+        for (int i = 0; i < player.boneFrames.Count; i++)
         {
+            total = 0;
             // 找最接近
             foreach (KeyValuePair<int, Transform> pair in npc.boneFrames[0])
             {
                 Transform npcTransform = pair.Value;
                 Transform playerTransform = player.boneFrames[i][pair.Key];
+                float distance = ComputeRotationDistance(playerTransform, npcTransform);
+                total += distance;
+            }
+            if (total < min)
+            {
+                min = total;
+                index = i;
+            }
+        }
+
+        total = 0;
+        for (int j = 0; j < npc.boneFrames.Count; j++)
+        {
+            if (j + index >= player.boneFrames.Count)
+                return 0;
+            float total2 = 0;
+            foreach (KeyValuePair<int, Transform> pair in npc.boneFrames[j])
+            {
+                Transform npcTransform = pair.Value;
+                Transform playerTransform = player.boneFrames[j + index][pair.Key];
                 float distance = ComputeRotationDistance(playerTransform, npcTransform);
                 float score = 0;
                 if (distance < 40)
@@ -184,45 +206,14 @@ public class LevelManager : MonoBehaviour
                     score = 3;
                 else if (distance < 10)
                     score = 4;
-                total += score;
+                total2 += score;
             }
-            if (total >= 1)
-            {
-                ok = true;
-                Debug.Log("找到最接近的了!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                break;
-            }
+            Debug.Log(total2);
+            if (total2 <= 1)
+                return 0;
+            total += total2;
         }
-        if (ok)
-        {
-            total = 0;
-            for (int j = 0; j < npc.boneFrames.Count; j++)
-            {
-                if (j + i >= player.boneFrames.Count)
-                    return 0;
-                float total2 = 0;
-                foreach (KeyValuePair<int, Transform> pair in npc.boneFrames[j])
-                {
-                    Transform npcTransform = pair.Value;
-                    Transform playerTransform = player.boneFrames[j + i][pair.Key];
-                    float distance = ComputeRotationDistance(playerTransform, npcTransform);
-                    float score = 0;
-                    if (distance < 40)
-                        score = 1;
-                    else if (distance < 20)
-                        score = 2;
-                    else if (distance < 15)
-                        score = 3;
-                    else if (distance < 10)
-                        score = 4;
-                    total2 += score;
-                }
-                Debug.Log(total2);
-                if (total2 <= 1)
-                    return 0;
-                total += total2;
-            }
-        }
+
         //foreach (KeyValuePair<int, Transform> pair in npc.BoneTransforms)
         //{
         //    Transform npcTransform = pair.Value;
