@@ -31,16 +31,16 @@ public class MotionModel : MonoBehaviour
         boneTransforms[PositionIndex.lForearmBend.Int()] = animator.GetBoneTransform(HumanBodyBones.LeftLowerArm);
 
         // Right Leg
-        boneTransforms[PositionIndex.rThighBend.Int()] = animator.GetBoneTransform(HumanBodyBones.RightUpperLeg);
-        boneTransforms[PositionIndex.rShin.Int()] = animator.GetBoneTransform(HumanBodyBones.RightLowerLeg);
-        boneTransforms[PositionIndex.rFoot.Int()] = animator.GetBoneTransform(HumanBodyBones.RightFoot);
+        //boneTransforms[PositionIndex.rThighBend.Int()] = animator.GetBoneTransform(HumanBodyBones.RightUpperLeg);
+        //boneTransforms[PositionIndex.rShin.Int()] = animator.GetBoneTransform(HumanBodyBones.RightLowerLeg);
+        //boneTransforms[PositionIndex.rFoot.Int()] = animator.GetBoneTransform(HumanBodyBones.RightFoot);
 
-        // Left Leg
-        boneTransforms[PositionIndex.lThighBend.Int()] = animator.GetBoneTransform(HumanBodyBones.LeftUpperLeg);
-        boneTransforms[PositionIndex.lShin.Int()] = animator.GetBoneTransform(HumanBodyBones.LeftLowerLeg);
-        boneTransforms[PositionIndex.lFoot.Int()] = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
+        //// Left Leg
+        //boneTransforms[PositionIndex.lThighBend.Int()] = animator.GetBoneTransform(HumanBodyBones.LeftUpperLeg);
+        //boneTransforms[PositionIndex.lShin.Int()] = animator.GetBoneTransform(HumanBodyBones.LeftLowerLeg);
+        //boneTransforms[PositionIndex.lFoot.Int()] = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
 
-        boneTransforms[PositionIndex.head.Int()] = animator.GetBoneTransform(HumanBodyBones.Head);
+        //boneTransforms[PositionIndex.head.Int()] = animator.GetBoneTransform(HumanBodyBones.Head);
     }
 
     // Update is called once per frame

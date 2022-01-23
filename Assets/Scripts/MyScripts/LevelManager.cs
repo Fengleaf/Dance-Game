@@ -144,11 +144,8 @@ public class LevelManager : MonoBehaviour
                     else
                         countdown.countdownState = Countdown.state.STOP;
                 }
-                // 太多就清空
-                if (player.boneFrames.Count > 10000)
-                    player.StartRecord();
                 float score = GetTotalScore();
-                if (score >= 1 * npc.boneFrames.Count)
+                if (score >= 1)
                 {
                     totalScore += score;
                     scoreText.text = totalScore.ToString();
@@ -172,7 +169,6 @@ public class LevelManager : MonoBehaviour
         int i;
         for (i = 0; i < player.boneFrames.Count; i++)
         {
-            ok = true;
             // 找最接近
             foreach (KeyValuePair<int, Transform> pair in npc.boneFrames[0])
             {
@@ -180,13 +176,13 @@ public class LevelManager : MonoBehaviour
                 Transform playerTransform = player.boneFrames[i][pair.Key];
                 float distance = ComputeRotationDistance(playerTransform, npcTransform);
                 float score = 0;
-                if (distance < 20)
+                if (distance < 40)
                     score = 1;
-                else if (distance < 10)
+                else if (distance < 20)
                     score = 2;
-                else if (distance < 5)
+                else if (distance < 15)
                     score = 3;
-                else if (distance < 1)
+                else if (distance < 10)
                     score = 4;
                 total += score;
             }
@@ -211,18 +207,18 @@ public class LevelManager : MonoBehaviour
                     Transform playerTransform = player.boneFrames[j + i][pair.Key];
                     float distance = ComputeRotationDistance(playerTransform, npcTransform);
                     float score = 0;
-                    if (distance < 20)
+                    if (distance < 40)
                         score = 1;
-                    else if (distance < 10)
+                    else if (distance < 20)
                         score = 2;
-                    else if (distance < 5)
+                    else if (distance < 15)
                         score = 3;
-                    else if (distance < 1)
+                    else if (distance < 10)
                         score = 4;
                     total2 += score;
                 }
                 Debug.Log(total2);
-                if (total2 <= 6)
+                if (total2 <= 1)
                     return 0;
                 total += total2;
             }
@@ -243,6 +239,7 @@ public class LevelManager : MonoBehaviour
         //        score = 4;
         //    total += score;
         //}
+        Debug.Log("total: " + total);
         return total;
     }
 
