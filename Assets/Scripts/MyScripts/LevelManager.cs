@@ -29,7 +29,7 @@ public class LevelManager : MonoBehaviour
     public Transform uiCanvas;
     public GameObject warningObject;
     public Text warningText;
-    public GameObject boundingBox;    
+    public GameObject boundingBox;
     public Countdown countdownPrefab;
 
     private void Awake()
@@ -66,7 +66,7 @@ public class LevelManager : MonoBehaviour
             List<string> path = new List<string>(s.Split('\\'));
             string fileName = path[path.Count - 1];
             path.RemoveAt(path.Count - 1);
-            string directory = string.Join("\\", path); 
+            string directory = string.Join("\\", path);
             recorder.directory = directory;
             recorder.filename = fileName;
             recorder.saveBVH();
@@ -92,6 +92,7 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(5);
         bvhAnimationLoader.playAnimation();
         mainTexture.localScale = new Vector3(-1, 1, 1);
+        yield return new WaitForSeconds(7);
         while (true)
         {
             yield return new WaitForSeconds(1f);
@@ -102,16 +103,19 @@ public class LevelManager : MonoBehaviour
                 warningText.text = "~~~Game Over~~~ Congratuation!!!!";
                 break;
             }
+            npc.SaveRecord();
             float preSpeed = 0;
             foreach (AnimationState state in bvhAnimationLoader.anim)
             {
                 preSpeed = state.speed;
                 state.speed = 0;
             }
+            player.StartRecord();
             while (true)
             {
                 if (playerModel.IsErrorAverage)
                 {
+                    player.SaveRecord();
                     warningObject.SetActive(true);
                     warningText.text = "Please step in the bounding box, thank you!";
                     boundingBox.SetActive(true);
@@ -123,6 +127,7 @@ public class LevelManager : MonoBehaviour
                     yield return null;
                     while (!countdown.IsEnd())
                     {
+                        player.StartRecord();
                         if (playerModel.IsErrorAverage)
                         {
                             warningObject.SetActive(true);
@@ -139,13 +144,17 @@ public class LevelManager : MonoBehaviour
                     else
                         countdown.countdownState = Countdown.state.STOP;
                 }
+                // 太多就清空
+                if (player.boneFrames.Count > 10000)
+                    player.StartRecord();
                 float score = GetTotalScore();
-                if (score >= 1)
+                if (score >= 1 * npc.boneFrames.Count)
                 {
                     totalScore += score;
                     scoreText.text = totalScore.ToString();
                     foreach (AnimationState state in bvhAnimationLoader.anim)
                         state.speed = preSpeed;
+                    npc.StartRecord();
                     break;
                 }
                 yield return null;
@@ -155,23 +164,85 @@ public class LevelManager : MonoBehaviour
 
     private float GetTotalScore()
     {
+        if (npc.boneFrames.Count == 0)
+            return 1;
+
         float total = 0;
-        foreach (KeyValuePair<int, Transform> pair in npc.BoneTransforms)
+        bool ok = false;
+        int i;
+        for (i = 0; i < player.boneFrames.Count; i++)
         {
-            Transform npcTransform = pair.Value;
-            Transform playerTransform = player.BoneTransforms[pair.Key];
-            float distance = ComputeRotationDistance(playerTransform, npcTransform);
-            float score = 0;
-            if (distance < 20)
-                score = 1;
-            else if (distance < 10)
-                score = 2;
-            else if (distance < 5)
-                score = 3;
-            else if (distance < 1)
-                score = 4;
-            total += score;
+            ok = true;
+            // 找最接近
+            foreach (KeyValuePair<int, Transform> pair in npc.boneFrames[0])
+            {
+                Transform npcTransform = pair.Value;
+                Transform playerTransform = player.boneFrames[i][pair.Key];
+                float distance = ComputeRotationDistance(playerTransform, npcTransform);
+                float score = 0;
+                if (distance < 20)
+                    score = 1;
+                else if (distance < 10)
+                    score = 2;
+                else if (distance < 5)
+                    score = 3;
+                else if (distance < 1)
+                    score = 4;
+                total += score;
+            }
+            if (total >= 1)
+            {
+                ok = true;
+                Debug.Log("找到最接近的了!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                break;
+            }
         }
+        if (ok)
+        {
+            total = 0;
+            for (int j = 0; j < npc.boneFrames.Count; j++)
+            {
+                if (j + i >= player.boneFrames.Count)
+                    return 0;
+                float total2 = 0;
+                foreach (KeyValuePair<int, Transform> pair in npc.boneFrames[j])
+                {
+                    Transform npcTransform = pair.Value;
+                    Transform playerTransform = player.boneFrames[j + i][pair.Key];
+                    float distance = ComputeRotationDistance(playerTransform, npcTransform);
+                    float score = 0;
+                    if (distance < 20)
+                        score = 1;
+                    else if (distance < 10)
+                        score = 2;
+                    else if (distance < 5)
+                        score = 3;
+                    else if (distance < 1)
+                        score = 4;
+                    total2 += score;
+                }
+                Debug.Log(total2);
+                if (total2 <= 6)
+                    return 0;
+                total += total2;
+            }
+        }
+        //foreach (KeyValuePair<int, Transform> pair in npc.BoneTransforms)
+        //{
+        //    Transform npcTransform = pair.Value;
+        //    Transform playerTransform = player.BoneTransforms[pair.Key];
+        //    float distance = ComputeRotationDistance(playerTransform, npcTransform);
+        //    float score = 0;
+        //    if (distance < 20)
+        //        score = 1;
+        //    else if (distance < 10)
+        //        score = 2;
+        //    else if (distance < 5)
+        //        score = 3;
+        //    else if (distance < 1)
+        //        score = 4;
+        //    total += score;
+        //}
         return total;
     }
 

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using System.Collections;
 
 public class VideoCapture : MonoBehaviour
 {
@@ -84,14 +85,19 @@ public class VideoCapture : MonoBehaviour
         sd.sizeDelta = new Vector2(videoScreenWidth, (int)(videoScreenWidth * VideoPlayer.clip.height / VideoPlayer.clip.width));
         VideoScreen.texture = videoTexture;
 
-        VideoPlayer.Play();
+        StartCoroutine(DelayPlay());
+    }
 
+    private IEnumerator DelayPlay()
+    {
         var aspect = (float)videoTexture.width / videoTexture.height;
 
         VideoBackground.transform.localScale = new Vector3(aspect, 1, 1) * VideoBackgroundScale;
         VideoBackground.GetComponent<Renderer>().material.mainTexture = videoTexture;
 
         InitMainTexture();
+        yield return new WaitForSeconds(6);
+        VideoPlayer.Play();
     }
 
     /// <summary>
