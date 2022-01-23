@@ -208,9 +208,9 @@ public class LevelManager : MonoBehaviour
                     score = 4;
                 total2 += score;
             }
-            Debug.Log(total2);
-            if (total2 <= 1)
-                return 0;
+            //Debug.Log(total2);
+            //if (total2 <= 1)
+            //    return 0;
             total += total2;
         }
 
