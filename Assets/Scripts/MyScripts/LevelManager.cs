@@ -208,12 +208,10 @@ public class LevelManager : MonoBehaviour
                     score = 4;
                 total2 += score;
             }
-            //Debug.Log(total2);
-            //if (total2 <= 1)
-            //    return 0;
             total += total2;
         }
-
+        Debug.Log("total: " + total);
+        return total;
         //foreach (KeyValuePair<int, Transform> pair in npc.BoneTransforms)
         //{
         //    Transform npcTransform = pair.Value;
@@ -230,8 +228,6 @@ public class LevelManager : MonoBehaviour
         //        score = 4;
         //    total += score;
         //}
-        Debug.Log("total: " + total);
-        return total;
     }
 
     private float ComputeRotationDistance(Transform from, Transform to)
